@@ -3,7 +3,7 @@ import QtQuick 2.0
 import "utils.js" as Utils
 
 ShaderEffect {
-    property color _staticFrameColor: "#ffffff"
+    property color _staticFrameColor: "#333333"
     property color _backgroundColor: appSettings.backgroundColor
     property color _fontColor: appSettings.fontColor
     property color _lightColor: Utils.mix(_fontColor, _backgroundColor, 0.2)
@@ -61,8 +61,9 @@ ShaderEffect {
             float inShadowLength = shadowLength * 0.5;
 
             float outShadow = max2(1.0 - smoothstep(vec2(-outShadowLength), vec2(0.0), coords) + smoothstep(vec2(1.0), vec2(1.0 + outShadowLength), coords));
-            outShadow = clamp(sqrt(outShadow), 0.0, 1.0);
-            color += frameColor.rgb * outShadow;
+            outShadow = clamp(sqrt(outShadow), 0.1, 1.0);
+            //color += frameColor.rgb * outShadow;
+            color += vec3(0.1) * outShadow;
             alpha = sum2(1.0 - smoothstep(vec2(0.0), aadelta, coords) + smoothstep(vec2(1.0) - aadelta, vec2(1.0), coords));
             alpha = clamp(alpha, 0.0, 1.0) * mix(1.0, 0.9, outShadow);
 
