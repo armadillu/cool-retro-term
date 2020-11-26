@@ -64,7 +64,7 @@ ApplicationWindow{
 
     property string wintitle: appSettings.wintitle
 
-    color: "#00000000"
+    //color: "#00000000" //fix for nvidia jetson nano - oriol
     title: terminalContainer.title || qsTr(appSettings.wintitle)
 
     Action {
