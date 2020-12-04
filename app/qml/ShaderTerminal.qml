@@ -37,6 +37,7 @@ Item {
     property real chromaColor: appSettings.chromaColor
 
     property real ambientLight: appSettings.ambientLight * 0.2
+    property real vOffset: appSettings.vOffset
 
     property size virtual_resolution
 
@@ -52,6 +53,8 @@ Item {
          property real screenCurvature: parent.screenCurvature
          property real chromaColor: parent.chromaColor
          property real ambientLight: parent.ambientLight
+         property real vOffset: parent.vOffset
+         
 
          property real flickering: appSettings.flickering
          property real horizontalSync: appSettings.horizontalSync
@@ -164,6 +167,8 @@ Item {
              uniform highp vec4 backgroundColor;
              uniform lowp float shadowLength;
 
+             uniform highp float vOffset;
+
              uniform highp vec2 virtual_resolution;" +
 
              (burnIn !== 0 ? "
@@ -189,6 +194,7 @@ Item {
                  uniform lowp vec2 jitterDisplacement;" : "") +
              (ambientLight !== 0 ? "
                  uniform lowp float ambientLight;" : "") +
+
 
              (fallBack && horizontalSync !== 0 ? "
                  uniform lowp float horizontalSyncStrength;" : "") +
@@ -239,7 +245,8 @@ Item {
              }" +
 
              "void main() {" +
-                 "vec2 cc = vec2(0.5) - qt_TexCoord0;" +
+                 "vec2 texCoord_voff = vec2(0, -vOffset * 0.002) + qt_TexCoord0;" +
+                 "vec2 cc = vec2(0.5) - texCoord_voff;" +
                  "float distance = length(cc);" +
 
                  //FallBack if there are problems
@@ -260,11 +267,11 @@ Item {
                      float noise = staticNoise;" : "") +
 
                  (screenCurvature !== 0 ? "
-                     vec2 staticCoords = barrel(qt_TexCoord0, cc);"
+                     vec2 staticCoords = barrel(texCoord_voff, cc);"
                  :"
-                     vec2 staticCoords = qt_TexCoord0;") +
+                     vec2 staticCoords = texCoord_voff;") +
 
-                 "vec2 coords = qt_TexCoord0;" +
+                 "vec2 coords = texCoord_voff;" +
 
                  (horizontalSync !== 0 ? "
                      float dst = sin((coords.y + time * 0.001) * distortionFreq);
@@ -318,7 +325,7 @@ Item {
                      finalColor += vec3(ambientLight) * (1.0 - distance) * (1.0 - distance);" : "") +
 
                  (screenCurvature !== 0 ?
-                    "vec4 frameColor = texture2D(frameSource, qt_TexCoord0);
+                    "vec4 frameColor = texture2D(frameSource, texCoord_voff);
                      finalColor = mix(finalColor, frameColor.rgb, frameColor.a);"
                  : "") +
 
@@ -384,6 +391,7 @@ Item {
          property real screen_brightness: Utils.lint(0.5, 1.5, appSettings.brightness)
 
          property real ambientLight: parent.ambientLight
+         property real vOffset: parent.vOffset
 
          property size virtual_resolution: parent.virtual_resolution
 
@@ -407,6 +415,8 @@ Item {
              uniform highp vec4 fontColor;
              uniform highp vec4 backgroundColor;
              uniform lowp float screen_brightness;
+
+             uniform highp float vOffset;
 
              uniform highp vec2 virtual_resolution;" +
 
@@ -470,14 +480,15 @@ Item {
 
 
              "void main() {" +
-                 "vec2 cc = vec2(0.5) - qt_TexCoord0;" +
+                 "vec2 texCoord_voff = vec2(0, -vOffset * 0.002) + qt_TexCoord0;" +
+                 "vec2 cc = vec2(0.5) - texCoord_voff;" +
 
                  (screenCurvature !== 0 ? "
                      float distortion = dot(cc, cc) * screenCurvature;
-                     vec2 curvatureCoords = (qt_TexCoord0 - cc * (1.0 + distortion) * distortion);
+                     vec2 curvatureCoords = (texCoord_voff - cc * (1.0 + distortion) * distortion);
                      vec2 txt_coords = - 2.0 * curvatureCoords + 3.0 * step(vec2(0.0), curvatureCoords) * curvatureCoords - 3.0 * step(vec2(1.0), curvatureCoords) * curvatureCoords;"
                  :"
-                     vec2 txt_coords = qt_TexCoord0;") +
+                     vec2 txt_coords = texCoord_voff;") +
 
                  "vec3 txt_color = texture2D(source, txt_coords).rgb;" +
 

@@ -184,6 +184,11 @@ Tab{
                     onValueChanged: appSettings._margin = value
                     value: appSettings._margin
                 }
+                Label{ text: qsTr("vOffset") }
+                SimpleSlider{
+                    onValueChanged: appSettings._vOffset = value
+                    value: appSettings._vOffset
+                }
                 Label{ text: qsTr("Opacity") }
                 SimpleSlider{
                     onValueChanged: appSettings.windowOpacity = value
